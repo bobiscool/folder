@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <!--/*json 动态创建 文件夹  文件夹点击 打开  点击 创建 就创建
+          显示层   就是一开始   就有文件夹   点击的时候 动态创建文件夹
+          添加与控制  我点击创建之后  在鼠标焦点下 那么所谓的 鼠标焦点 又是啥??
+          我的鼠标 选中的 那个文件夹中 创建文件夹
+          那么只准 选中一个文件夹的时候 才能 创建文件夹
+          在 选中多个文件夹时  只准 删除文件夹
+
+    [打开  206px -44px,
+      未开  298px -44px,
+       关   302px -44px
+       ]
+
+            /*自定义了一个 json格式的数组 然后呢 怎么动态创建 ? 首先是 头四个 要一出来就创建*/
+            /*这里可以递归的形式产生  重复在于 看自己的list有没有东西  有 那就把list里面的东西拿出来 创建 为自己的子集  然后继续遍历 自己的子集 是否有list  这就是一个过程 但是如果以jSON的形式创建 那么 我创建东西的时候 要找到所谓的 name 还有list  这一点递归的时候如何找到自己的定位呢？？？？？？ 他有一个横向 的定位 有一个横向数值个纵向的定位 这样显然太麻烦  换一种定义json的方式  */
+
+            /*问题2 
+                怎么让我的文件夹在生成 具有 点击功能  动态生成之后 才获取 全部 的
+            
+            */
+           
+           创建文件的时候 也可以调用那个递归函数  创建的时候 先找到 那个选择键 在哪个地方 然后记录下来 并且 自己增加id 然后将这个json 传给那个递归函数
+    */-->
+
+
+
+
+    <style>
+        div,body,span { margin:0; padding:0;}
+        body { width: 100%;height:100%;}
+        #nav {float:left;width:100%;height:46px;background:url('2016-08-04_15-47-12.png') repeat-x;}
+        #bottom { float: left;width:100%;height:1000px; }
+        #left-section { float:left;width: 18%;height:1000px;background:url('2016-08-04_15-58-23.png') repeat-y;}
+        #right-section { float:left; }
+
+        .Close,.halfClose,.Open {width:90px;height:70px;color:white; text-align: center; line-height:70px; cursor: pointer;} 
+        .Off  { display: none; }
+         .On  { display:block;}
+    
+        .Close { background: url(folder.png) 291px -44px ;} 
+        .halfClose { background: url(folder.png) 200px -39px;}
+        .Open { background: url(folder.png) 109px -44px;}
+      
+
+
+        input {width:10px;height:10px; }
+    </style>
+
+    <script>
+        window.onload = function(){
+            var Ors = document.getElementById('right-section');
+            var Aname=[
+
+                {"order":"1","name":"电影","par":"0"},
+                    {"order":"2","name":"喜剧电影","par":"1"},
+                        {"order":"22","name":"外国喜剧","par":"2"},
+                            {"order":"24","name":"憨豆先生","par":"22"},
+                            {"order":"25","name":"艾迪墨菲","par":"22"},
+                        {"order":"23","name":"国内喜剧","par":"2"},
+                    {"order":"3","name":"科幻电影","par":"1"},
+                        {"order":"4","name":"硬科幻","par":"3"},
+                        {"order":"5","name":"纯扯淡科幻","par":"3"},
+                {"order":"6","name":"音乐","par":"0"},
+                    {"order":"7","name":"古典音乐","par":"6"},
+                        {"order":"8","name":"莫扎特","par":"7"},
+                    {"order":"9","name":"现代音乐","par":"6"},
+                        {"order":"10","name":"周杰伦","par":"9"},
+                        {"order":"11","name":"吉克隽逸","par":"9"},
+                            {"order":"12","name":"好声音专辑","par":"11"},
+                {"order":"13","name":"工具","par":"0"},
+                        {"order":"14","name":"Mac软件","par":"13"},
+                        {"order":"15","name":"windows","par":"13"},
+                                {"order":"16","name":"下载软件","par":"15"},
+                                {"order":"17","name":"系统软件","par":"15"},
+                {"order":"18","name":"教程","par":"0"},
+                                {"order":"19","name":"html教程","par":"18"},
+                                {"order":"20","name":"js全栈教程","par":"18"},
+                                    {"order":"21","name":"js基础教程","par":"20"},
+
+
+                        ];
+
+
+            /*初始化 布置 dd  获取dd 设置事件*/
+            var Odl1 = createFolder(Aname,0);
+            Ors.appendChild(Odl1);
+            Init();  
+
+
+
+
+
+
+
+
+
+   //初始化 添加 事件 
+    function Init() {
+    Aimg = document.getElementsByClassName('shengzi');
+    var last = Aimg[0];
+    //console.log(Aimg);
+    for(var i=0;i<Aimg.length;i++){
+        Aimg[i].on = false;/*这里有一个问题  因为 如果我新建文件夹的话 如果是这样 每次 都init一次 那么 那些打开的文件夹 就会失效 所以不行  如归是这样 记录的形式  我就应该重新来一个 穿件函数 而这个初始化  还是只用一次*/ 
+        Aimg[i].lastName = Aimg[i].className ;
+        Aimg[i].miniclick=0;//连续点击打开文件夹 
+        (function(a){
+            Aimg[a].onclick = function(){
+        
+             this.miniclick++;   
+             console.log(this.miniclick);   
+            if(this.miniclick==1){var timer = setTimeout(function(){Aimg[a].miniclick=0;},200);}
+            //点击一次 就开一次定时器。。。。。不对吧。。。
+            //连续点击的制作  就是点击一次 在100毫秒内点击第二次 那么 视为连续点击  开始打开事件  只单击一次 或者100毫秒内点击一次 那就是视为选中选中的东西 都要push进一个数组  以备 删除用    
+             if(!this.on){    //没打开的时候 两种状态 
+                    if (this.miniclick>=2){  //双击之后 
+                        if(this.nextElementSibling.children[0]){
+                            this.className = "On Open shengzi";
+                            //lastName = "On Open shengzi";
+                            this.lastName =  "On Open shengzi";
+                            for(var i=0;i<this.nextElementSibling.children.length;i++){this.nextElementSibling.children[i].children[0].className = "On Close shengzi";}
+                            this.on= true;    
+                            }
+                           
+                   }else {//单击 如何避免 双击的时候第一次单击会激活这个  我先判断 你是否是双击事件 如果不是 就是单击事件
+                            last.className = last.lastName;
+                            this.lastName = this.className;  //记录现在的Class
+                            this.className = "On halfClose shengzi";
+                            //Ael.push(this);//这里有需要考虑一件事情了 那就是 我点击这个之后 再给一段时间点一次 是会取消点击？ 还是
+                            last = this;
+                   }
+               }else{
+
+                    this.className = "On Close shengzi";
+                    this.on= false;
+                    if(this.nextElementSibling.children){
+                     Close(this.nextElementSibling);
+                    }
+               }
+       };})(i);
+       } 
+    }
+            
+
+
+
+function Close(obj){
+    var Olast = obj.querySelector('.halfClose');
+     console.log(Olast);
+    //obj就是点击的这个点，点击之后 将下面的所有的 Close-show全部 
+    var Aclose = obj.querySelectorAll('.On');
+    //console.log(Aclose)
+    if(Olast){ 
+        Olast.lastName="Off Close shengzi"; console.log(Olast.lastName);
+    }
+
+    for(var i=0;i<Aclose.length;i++){ Aclose[i].className="Off Close shengzi"}
+}
+   
+//    递归生成 文件夹  只能用一次 
+    function createFolder(Data,parent){   
+        if(Data!=null){
+            var Odl=document.createElement('dl');
+            //console.log(Odl);
+            for(var i=0;i<Data.length;i++){
+                if(Data[i].par==parent){
+                    var Odd = document.createElement('dd');
+                    var OCheck = document.createElement('input');
+                    OCheck.setAttribute('type','checkbox');
+                    var Odiv = document.createElement('div');
+                    Odiv.appendChild(OCheck);
+                    //Odd.setAttribute('onclick',aa);
+                    if(Data[i].par==0){
+                    Odiv.className ="On Close shengzi";
+                    }else{
+                    Odiv.className = "Off Close shengzi";        
+                    }
+                    Odiv.innerHTML = Data[i].name;
+                    Odd.appendChild(Odiv);
+                    Odd.appendChild(createFolder(Data,Data[i].order));
+                    Odl.appendChild(Odd);
+                }
+              }
+            }
+                return Odl;
+            }
+        };
+    </script>
+
+
+</head>
+<body>
+
+
+<div id="nav"> </div>
+<div id="bottom">
+
+<div id="left-section"> </div>
+<div id="right-section">
+    
+
+</div>
+</div>
+
+
+</body>
+</html>
